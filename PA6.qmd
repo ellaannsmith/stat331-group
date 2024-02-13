@@ -2,11 +2,14 @@
 title: "Practice Activity 6"
 author: "Emily, Ella, Alexis"
 format: html
-editor: visual
-embed-resource: true
+editor: source
+embed-resources: true
 ---
-```{r}
 
+```{r}
+1+1
 ```
 
-## 
+```{r}
+2*2
+```
