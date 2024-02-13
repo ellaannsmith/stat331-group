@@ -7,9 +7,11 @@ embed-resources: true
 ---
 
 ```{r}
-1+1
+600000 + 9000000
 ```
 
 ```{r}
-2*2
+2*2*2*2*2*2*2
 ```
+
+making lots of changessss
