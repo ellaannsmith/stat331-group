@@ -1,9 +1,12 @@
 ---
 title: "Practice Activity 6"
+author: "Emily, Ella, Alexis"
 format: html
 editor: visual
-embed-resourse: true
-self contained: true
+embed-resource: true
 ---
+```{r}
+
+```
 
 ## 
