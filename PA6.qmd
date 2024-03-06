@@ -7,7 +7,7 @@ embed-resources: true
 ---
 
 ```{r}
-600000 + 90
+600000 + 90GGG
 ```
 
 ```{r}
