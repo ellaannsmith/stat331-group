@@ -75,3 +75,28 @@ co2_cdmt <- cdmt %>%
 
 
 ```
+
+### Linear Regression Model
+
+```{r}
+
+co2_cdmt %>%
+  mutate(year = as.numeric(year),
+         co2 = as.numeric(co2),
+         cdmt = as.numeric(cdmt)) %>%
+  group_by(year) %>%
+  summarize(avg_co2 = mean(co2),
+            avg_cdmt = mean(cdmt)) %>%
+  
+  ggplot(aes(x = year)) +
+  geom_line(aes(y = avg_co2, color = "co2"), size = 1.5) +
+  geom_line(aes(y = avg_cdmt, color = "cdmt"), size = 1.5) +labs(title = "Relationship CO2 Emmissions and Child Mortality Rates",
+       x = "Year",
+       y = "", subtitle = "Emissions in tonnes per capita/proportion of deaths per 1000 births") +
+  
+  theme_minimal()
+
+
+  
+
+```
