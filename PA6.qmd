@@ -84,29 +84,23 @@ co2_cdmt <- cdmt %>%
 ```
 
 
-An idea for by year
-```{r}
-co2_cdmt %>%
-  filter(country == "Estonia" | country == "Latvia" | country == "Latvia") %>%
-  mutate(year = as.numeric(year)) %>%
-  filter(year %% 10 == 0) %>%
-  ggplot(aes(x = year, y = cdmt, size = co2)) +
-  geom_point(alpha = 0.7)
-```
 
 ```{r}
 co2_cdmt %>%
-  filter(country %in% c("Estonia", "Latvia")) %>%
+  filter(country %in% c("Zimbabwe", "China")) %>% #random places we will change there is just so much data it takes a while to load so i did this so it could load quicker
   mutate(cdmt = as.numeric(cdmt)) %>%
   mutate(co2 = as.numeric(co2)) %>%
   mutate(year = as.numeric(year),
-         log_cdmt = log(cdmt + 1)) %>%  # Adding 1 to avoid taking log of zero
+         log_cdmt = log(cdmt + 1)) %>%  
   filter(year %% 10 == 0) %>%
   ggplot(aes(x = year, y = log_cdmt, size = co2, color = country)) +
   geom_point(alpha = 0.7) +
   scale_size_continuous(name = "CO2 Emissions") +
   labs(x = "Year", y = "Log Child Mortality") +
-  scale_color_manual(values = c("Estonia" = "blue", "Latvia" = "red")) +
+  scale_color_manual(values = c("Zimbabwe" = "blue", "China" = "red")) +
   theme_minimal()
+```
+```{r}
+
 ```
 
