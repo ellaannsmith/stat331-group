@@ -132,7 +132,22 @@ graph |>
   geom_jitter()+
   geom_smooth(method = "lm")
 ```
+
 ```{r}
 broom:: tidy(reg)
 ```
 
+###Residual Plot
+```{r}
+residual <- broom::augment(reg)
+
+residual_co2 <- ggplot(data = reg, aes(x = avg_co2, y = .resid)) +
+  geom_point() +
+  labs(x = "Average CO2", y = NULL, subtitle = "Residuals", title = "Residual Plot of Average CO2")
+
+residual_cdmt <- ggplot(data = reg, aes(x = avg_cdmt, y = .resid)) +
+  geom_point() +
+  labs (x = "Average Child Mortality", y = NULL, subtitle = "Residuals", title = "Residual Plot of Average Child Mortality")
+residual_co2
+residual_cdmt
+```
