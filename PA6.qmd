@@ -46,7 +46,7 @@ Our investigation aims to explore this nuanced relationship between CO2 emission
 
 A glaring factor within the data is the child mortality dataset contains data all the way to 2100. This means the data past 2018 (noted in data description in Gapminder) is predicted. For the purposes of this analysis and the data we have for CO2 emissions, we will only use data from 1800 to 2018.
 
-In our data cleaning process we will omit observations with at least one variable missing. We are aware that omitting these missing variables decreases the sample size and may lead us to miss important information. Since we are using ggplot and lm--which drop NA obs anyway--it makes sense to remove these variables for the entire analysis.
+In our data cleaning process we will omit observations with at least one variable missing. We are aware that omitting these missing variables decreases the sample size and may lead us to miss important information. Since we are using ggplot and lm--which drop missing observations anyway--it makes sense to remove these variables for the entire analysis.
 
 The two data sets will also need to be merged into one data set in long format using the pivot_longer function.
 
