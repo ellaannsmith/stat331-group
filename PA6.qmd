@@ -14,13 +14,12 @@ execute:
   warning: false
 ---
 
+I just did this so I can also get the data
 ```{r}
-#| code-fold: true
-library(tidyverse)
-
-co2 <- read_csv("C:\\Users\\lexih\\OneDrive\\Documents\\Stat331\\co2.csv", col_names = TRUE)
-cdmt <- read_csv("C:\\Users\\lexih\\OneDrive\\Documents\\Stat331\\cdmt.csv", col_names = TRUE)
+co2 <- read_csv("co2_pcap_cons.csv")
+cdmt<- read_csv("child_mortality.csv")
 ```
+
 
 ### Data Description:
 
@@ -118,5 +117,26 @@ co2_cdmt %>%
         plot.subtitle = element_text(size = 12),
         axis.text = element_text(size = 10))
   
+
+```
+
+```{r}
+co2_cdmt %>%
+  filter(country %in% c("Zimbabwe", "China")) %>% #random places we will change there is just so much data it takes a while to load so i did this so it could load quicker
+  mutate(cdmt = as.numeric(cdmt)) %>%
+  mutate(co2 = as.numeric(co2)) %>%
+  mutate(year = as.numeric(year),
+         log_cdmt = log(cdmt + 1)) %>%  
+  filter(year %% 10 == 0) %>%
+  ggplot(aes(x = year, y = log_cdmt, size = co2, color = country)) +
+  geom_point(alpha = 0.7) +
+  scale_size_continuous(name = "CO2 Emissions") +
+  labs(x = "Year", y = "Log Child Mortality") +
+  scale_color_manual(values = c("Zimbabwe" = "blue", "China" = "red")) +
+  theme_minimal()
+```
+```{r}
+ggplot(co2_cdmt, aes(x=cdmt, y=co2)) + geom_point()+
+  geom_point(size=2, shape=23)
 
 ```
