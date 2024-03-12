@@ -18,8 +18,8 @@ execute:
 #| code-fold: true
 library(tidyverse)
 
-co2 <- read_csv("C:\\Users\\lexih\\OneDrive\\Documents\\Stat331\\co2.csv", col_names = TRUE)
-cdmt <- read_csv("C:\\Users\\lexih\\OneDrive\\Documents\\Stat331\\cdmt.csv", col_names = TRUE)
+co2 <- read_csv("co2.csv", col_names = TRUE)
+cdmt <- read_csv("cdmt.csv", col_names = TRUE)
 ```
 
 ### Data Description:
