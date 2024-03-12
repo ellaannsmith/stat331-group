@@ -21,6 +21,9 @@ library(tidyverse)
 co2 <- read_csv("co2.csv", col_names = TRUE)
 cdmt <- read_csv("cdmt.csv", col_names = TRUE)
 ```
+Hey all, I'm here. It's amy!
+
+hiiii its ash!
 
 ### Data Description:
 
@@ -79,6 +82,8 @@ co2_cdmt <- cdmt %>%
 ### Data Visualization
 
 ```{r}
+#| code-fold: true
+
 co2_cdmt %>%
   mutate(year = as.numeric(year),
          co2 = as.numeric(co2),
@@ -86,19 +91,14 @@ co2_cdmt %>%
   group_by(year) %>%
   summarize(avg_co2 = mean(co2),
             avg_cdmt = mean(cdmt)) %>%
-  ggplot(aes(x = avg_co2, y = avg_cdmt)) +
-  geom_jitter(alpha = 0.7, color = "steelblue", size = 3) +
   
-  labs(title = "Average CO2 vs. CDMT",
-       subtitle = "Average CDMT",
-       x = "Average CO2",
-       y = "") +
+  ggplot(aes(x = year)) +
+  geom_line(aes(y = avg_co2, color = "co2"), size = 1.5) +
+  geom_line(aes(y = avg_cdmt, color = "cdmt"), size = 1.5) +labs(title = "Relationship CO2 Emmissions and Child Mortality Rates",
+       x = "Year",
+       y = "", subtitle = "Emissions in tonnes per capita/proportion of deaths per 1000 births") +
   
-  theme_minimal() +
-  theme(plot.title = element_text(size = 20, face = "bold"),
-        plot.subtitle = element_text(size = 12),
-        axis.text = element_text(size = 10))
-  
+  theme_minimal()
 ```
 
 
