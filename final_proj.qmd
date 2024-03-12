@@ -99,7 +99,11 @@ co2_cdmt %>%
        y = "", subtitle = "Emissions in tonnes per capita/proportion of deaths per 1000 births") +
   
   theme_minimal()
+```
 
+
+```{r}
+#| code-fold: true
 
 co2_cdmt %>%
   mutate(year = as.numeric(year),
@@ -108,18 +112,12 @@ co2_cdmt %>%
   group_by(year) %>%
   summarize(avg_co2 = mean(co2),
             avg_cdmt = mean(cdmt)) %>%
-  ggplot(aes(x = avg_co2, y = avg_cdmt)) +
-  geom_jitter(alpha = 0.7, color = "steelblue", size = 3) +
   
-  labs(title = "Average CO2 vs. CDMT",
-       subtitle = "Average CDMT",
-       x = "Average CO2",
-       y = "") +
+  ggplot(aes(x = year)) +
+  geom_line(aes(y = log(avg_co2), color = "log co2"), size = 1.5) +
+  geom_line(aes(y = log(avg_cdmt), color = "log cdmt"), size = 1.5) +labs(title = "Relationship CO2 Emmissions and Child Mortality Rates",
+       x = "Year",
+       y = "", subtitle = "Emissions in tonnes per capita/proportion of deaths per 1000 births") +
   
-  theme_minimal() +
-  theme(plot.title = element_text(size = 20, face = "bold"),
-        plot.subtitle = element_text(size = 12),
-        axis.text = element_text(size = 10))
-  
-
+  theme_minimal()
 ```
