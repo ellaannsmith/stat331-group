@@ -156,7 +156,8 @@ co2_cdmt %>%
         axis.text = element_text(size = 10)) +
 
 
-# Step 3: Add regression line to the plot
+# Add regression line to the plot
  geom_smooth(method = "lm", color = "red", se = FALSE)
+
 ```
 
