@@ -2,7 +2,7 @@
 title: "Project Proposal"
 author: 'Alexis Hegarty, Ella Smith, Ashlyn Philips, and Amy Truong'
 format: 
-  html: 
+  html:
     self-contained: true
     code-tools: true
     toc: true
@@ -14,19 +14,12 @@ execute:
   warning: false
 ---
 
-
-
 ```{r}
 #| code-fold: true
 library(tidyverse)
 
 co2 <- read_csv("C:\\Users\\lexih\\OneDrive\\Documents\\Stat331\\co2.csv", col_names = TRUE)
 cdmt <- read_csv("C:\\Users\\lexih\\OneDrive\\Documents\\Stat331\\cdmt.csv", col_names = TRUE)
-```
-I just did this so I can also get the data
-```{r}
-co2 <- read_csv("co2_pcap_cons.csv")
-cdmt<- read_csv("child_mortality.csv")
 ```
 
 ### Data Description:
@@ -53,7 +46,7 @@ Our investigation aims to explore this nuanced relationship between CO2 emission
 
 A glaring factor within the data is the child mortality dataset contains data all the way to 2100. This means the data past 2018 (noted in data description in Gapminder) is predicted. For the purposes of this analysis and the data we have for CO2 emissions, we will only use data from 1800 to 2018.
 
-In our data cleaning process we will omit observations with at least one variable missing. We are aware that omitting these missing variables decreases the sample size and may lead us to miss important information. Since we are using ggplot and lm--which drop NA obs anyway--it makes sense to remove these variables for the entire analysis.
+In our data cleaning process we will omit observations with at least one variable missing. We are aware that omitting these missing variables decreases the sample size and may lead us to miss important information. Since we are using ggplot and lm--which drop missing observations anyway--it makes sense to remove these variables for the entire analysis.
 
 The two data sets will also need to be merged into one data set in long format using the pivot_longer function.
 
@@ -83,24 +76,47 @@ co2_cdmt <- cdmt %>%
 
 ```
 
-
+### Data Visualization
 
 ```{r}
+#| code-fold: true
+
 co2_cdmt %>%
-  filter(country %in% c("Zimbabwe", "China")) %>% #random places we will change there is just so much data it takes a while to load so i did this so it could load quicker
-  mutate(cdmt = as.numeric(cdmt)) %>%
-  mutate(co2 = as.numeric(co2)) %>%
   mutate(year = as.numeric(year),
-         log_cdmt = log(cdmt + 1)) %>%  
-  filter(year %% 10 == 0) %>%
-  ggplot(aes(x = year, y = log_cdmt, size = co2, color = country)) +
-  geom_point(alpha = 0.7) +
-  scale_size_continuous(name = "CO2 Emissions") +
-  labs(x = "Year", y = "Log Child Mortality") +
-  scale_color_manual(values = c("Zimbabwe" = "blue", "China" = "red")) +
+         co2 = as.numeric(co2),
+         cdmt = as.numeric(cdmt)) %>%
+  group_by(year) %>%
+  summarize(avg_co2 = mean(co2),
+            avg_cdmt = mean(cdmt)) %>%
+  
+  ggplot(aes(x = year)) +
+  geom_line(aes(y = avg_co2, color = "co2"), size = 1.5) +
+  geom_line(aes(y = avg_cdmt, color = "cdmt"), size = 1.5) +labs(title = "Relationship CO2 Emmissions and Child Mortality Rates",
+       x = "Year",
+       y = "", subtitle = "Emissions in tonnes per capita/proportion of deaths per 1000 births") +
+  
   theme_minimal()
-```
-```{r}
+
+
+co2_cdmt %>%
+  mutate(year = as.numeric(year),
+         co2 = as.numeric(co2),
+         cdmt = as.numeric(cdmt)) %>%
+  group_by(year) %>%
+  summarize(avg_co2 = mean(co2),
+            avg_cdmt = mean(cdmt)) %>%
+  ggplot(aes(x = avg_co2, y = avg_cdmt)) +
+  geom_jitter(alpha = 0.7, color = "steelblue", size = 3) +
+  
+  labs(title = "Average CO2 vs. CDMT",
+       subtitle = "Average CDMT",
+       x = "Average CO2",
+       y = "") +
+  
+  theme_minimal() +
+  theme(plot.title = element_text(size = 20, face = "bold"),
+        plot.subtitle = element_text(size = 12),
+        axis.text = element_text(size = 10))
+  
 
 ```
-
