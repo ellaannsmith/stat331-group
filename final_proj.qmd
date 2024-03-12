@@ -130,7 +130,11 @@ reg <- lm(avg_co2~avg_cdmt, data = graph)
 graph |>
   ggplot(aes(x=avg_co2, y=avg_cdmt))+
   geom_jitter()+
-  geom_smooth(method = "lm")
+  geom_smooth(method = "lm")+ 
+  labs(title = "Linear Regression for CO2 and Child Mortality", 
+       xlab = "Average CO2 Emmisions", 
+       ylab = "Average Child Mortality Rate")
+
 ```
 
 ```{r}
