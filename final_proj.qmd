@@ -23,6 +23,8 @@ cdmt <- read_csv("cdmt.csv", col_names = TRUE)
 ```
 Hey all, I'm here. It's amy!
 
+hiiii its ash!
+
 ### Data Description:
 
 The data we are using in our analysis is sourced from [Gapminder](https://www.gapminder.org/data/documentation/). The Gapminder data sets are compiled of world data ranging from 1800 to 2020. The variables, documented by country (using current geographic boundaries), are indicators of global development and evolution through the past two centuries. Examples of these variables include, child mortality, GDP, fertility rates, life expectancy rates, and more.
