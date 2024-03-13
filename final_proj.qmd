@@ -106,6 +106,7 @@ From this graph we can observe the log transformed data of average carbon dioxid
 Average CO2 vs. Average CDMT:
 
 ```{r}
+#| code-fold: true
 graph<-
 co2_cdmt %>%
   mutate(year = as.numeric(year),
@@ -133,6 +134,7 @@ By observing this graph we can infer an important detail about the relationship 
 ##### Fitting Linear Regression:
 
 ```{r}
+#| code-fold: true
 reg <- lm(avg_cdmt~avg_co2, data = graph)
 
 graph |>
@@ -149,6 +151,7 @@ The statistical method we are using to analyze the data is linear regression. Th
 Where y represents the dependent variable, child mortality and x1 represents in the independent variable, CO2 emissions.
 
 ```{r}
+#| code-fold: true
 broom:: tidy(reg)
 summary(reg)
 ```
@@ -168,6 +171,7 @@ Description of Fit: We have an adjusted R2 of 0.9379 so we observe a strong nega
 #### Residual Plots
 
 ```{r}
+#| code-fold: true
 residual <- broom::augment(reg)
 
 residual_co2 <- ggplot(data = reg, aes(x = avg_co2, y = .resid)) +
