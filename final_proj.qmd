@@ -17,6 +17,7 @@ execute:
 ```{r}
 #| code-fold: true
 library(tidyverse)
+library(broom)
 
 co2 <- read_csv("co2.csv", col_names = TRUE)
 cdmt <- read_csv("cdmt.csv", col_names = TRUE)
@@ -120,4 +121,60 @@ co2_cdmt %>%
        y = "", subtitle = "Emissions in tonnes per capita/proportion of deaths per 1000 births") +
   
   theme_minimal()
+```
+
+
+```{r}
+graph<-
+co2_cdmt %>%
+  mutate(year = as.numeric(year),
+         co2 = as.numeric(co2), 
+         cdmt = as.numeric(cdmt)) %>%  
+  group_by(year) %>%  
+  summarize(avg_co2 = mean(co2),
+            avg_cdmt = mean(cdmt)) 
+graph |>
+  ggplot(aes(x = avg_co2, y = avg_cdmt)) +  
+  geom_jitter(alpha = 0.7, color = "steelblue", size = 3) +    
+  labs(title = "Average CO2 vs. CDMT", 
+       subtitle = "Average CDMT", 
+       x = "Average CO2",
+       y = "") + 
+  theme_minimal() +  
+  theme(plot.title = element_text(size = 20, face = "bold"),      
+        plot.subtitle = element_text(size = 12), 
+        axis.text = element_text(size = 10))
+
+```
+######Fitting Linear Regression:
+```{r}
+reg <- lm(avg_co2~avg_cdmt, data = graph)
+
+graph |>
+  ggplot(aes(x=avg_co2, y=avg_cdmt))+
+  geom_jitter()+
+  geom_smooth(method = "lm")+ 
+  labs(title = "Linear Regression for CO2 and Child Mortality", 
+       xlab = "Average CO2 Emmisions", 
+       ylab = "Average Child Mortality Rate")
+
+```
+
+```{r}
+broom:: tidy(reg)
+```
+
+###Residual Plot
+```{r}
+residual <- broom::augment(reg)
+
+residual_co2 <- ggplot(data = reg, aes(x = avg_co2, y = .resid)) +
+  geom_point() +
+  labs(x = "Average CO2", y = NULL, subtitle = "Residuals", title = "Residual Plot of Average CO2")
+
+residual_cdmt <- ggplot(data = reg, aes(x = avg_cdmt, y = .resid)) +
+  geom_point() +
+  labs (x = "Average Child Mortality", y = NULL, subtitle = "Residuals", title = "Residual Plot of Average Child Mortality")
+residual_co2
+residual_cdmt
 ```
