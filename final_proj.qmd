@@ -125,7 +125,7 @@ graph |>
 ```
 ######Fitting Linear Regression:
 ```{r}
-reg <- lm(avg_co2~avg_cdmt, data = graph)
+reg <- lm(avg_cdmt~avg_co2, data = graph)
 
 graph |>
   ggplot(aes(x=avg_co2, y=avg_cdmt))+
