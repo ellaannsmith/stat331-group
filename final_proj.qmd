@@ -22,11 +22,8 @@ library(broom)
 co2 <- read_csv("co2.csv", col_names = TRUE)
 cdmt <- read_csv("cdmt.csv", col_names = TRUE)
 ```
-Hey all, I'm here. It's amy!
 
-hiiii its ash!
-
-### Data Description:
+## Data Description:
 
 The data we are using in our analysis is sourced from [Gapminder](https://www.gapminder.org/data/documentation/). The Gapminder data sets are compiled of world data ranging from 1800 to 2020. The variables, documented by country (using current geographic boundaries), are indicators of global development and evolution through the past two centuries. Examples of these variables include, child mortality, GDP, fertility rates, life expectancy rates, and more.
 
@@ -36,7 +33,7 @@ The Child Mortality Rate data set combines data from multiple sources to create 
 
 The Carbon Dioxide data set combines data from multiple sources to create a data set of CO2 emissions in tonnes per capita for each country from 1800 to 2022. The data set has three variables: country, year, and CO2 emissions per capita. Both data sets we are using contain from 194 countries.
 
-### Hypothesis:
+### Hypothesis
 
 We will use CO2 as our explantory variable and Child mortality as our response varaible.
 
@@ -46,7 +43,7 @@ However, we are also aware that industrialization also could have lowered child 
 
 Our investigation aims to explore this nuanced relationship between CO2 emissions and child mortality. Using historical data and statistical analyses, we aim to provide a more comprehensive understanding of the evolution of the relationship between these two variables within the last two decades.
 
-### Cleaning the Data
+### Clean & Merge Data
 
 A glaring factor within the data is the child mortality dataset contains data all the way to 2100. This means the data past 2018 (noted in data description in Gapminder) is predicted. For the purposes of this analysis and the data we have for CO2 emissions, we will only use data from 1800 to 2018.
 
@@ -54,9 +51,9 @@ In our data cleaning process we will omit observations with at least one variabl
 
 The two data sets will also need to be merged into one data set in long format using the pivot_longer function.
 
-The following code performs these three tasks:
+Another important factor to address in our data cleaning process is the different scales the two variables are measured by. "Deaths per 1000 children" is hard to compare in context to "tonnes per capita". To contextualize the two scales in comparison to each other we will use a log base transformation.
 
-### Merge & Clean Data:
+The following code performs these three tasks:
 
 ```{r}
 #| code-fold: true
@@ -75,45 +72,27 @@ co2_cdmt <- cdmt %>%
   ) %>%
   
   filter(year < 2018) %>%
-  na.omit()
+  na.omit() %>%
+  mutate(year = as.numeric(year),
+         co2 = as.numeric(co2),
+         cdmt = as.numeric(cdmt)) %>%
+  mutate(log_co2 = log(co2)) %>%
+  mutate(log_cdmt = log(cdmt)) 
+
 
 
 ```
 
-### Data Visualization
+## Data Visualizations
 
+### Graph: Relationship Observed Over Time
+
+The first data visualization depicts the relationship between the logged values of Co2 emissions and child mortality rates from 1800 to 2018.
 
 ```{r}
 #| code-fold: true
 
 co2_cdmt %>%
-  mutate(year = as.numeric(year),
-         co2 = as.numeric(co2),
-         cdmt = as.numeric(cdmt)) %>%
-  group_by(year) %>%
-  summarize(avg_co2 = mean(co2),
-            avg_cdmt = mean(cdmt)) %>%
-  
-  ggplot(aes(x = year)) +
-  geom_line(aes(y = avg_co2, color = "co2"), size = 1.5) +
-  geom_line(aes(y = avg_cdmt, color = "cdmt"), size = 1.5) +labs(title = "Relationship CO2 Emmissions and Child Mortality Rates",
-       x = "Year",
-       y = "", subtitle = "Emissions in tonnes per capita/proportion of deaths per 1000 births") +
-  
-  theme_minimal()
-```
-
-
-Logged Relationship between CO2 emissions and child mortality rates over time graph:
-
-
-```{r}
-#| code-fold: true
-
-co2_cdmt %>%
-  mutate(year = as.numeric(year),
-         co2 = as.numeric(co2),
-         cdmt = as.numeric(cdmt)) %>%
   group_by(year) %>%
   summarize(avg_co2 = mean(co2),
             avg_cdmt = mean(cdmt)) %>%
@@ -127,22 +106,21 @@ co2_cdmt %>%
   theme_minimal()
 ```
 
-From this graph we can observe the log transformed data of average carbon dioxide emissions and average child mortality rates from 1800 to 2018 across 192 countries. We logged the data so that we could visually compare the two variables on the same scale. From 1800 to about 1900 is consistently around an average of 6. Just after 1900 the line started to steadily decrease until it almost reached 3 by 2018. The trend for carbon dioxide is slightly different. While there seems to be no change between 1800 and 1825–the emissions are consistently at -3, shortly after that period, the CO2 emissions begin to rapidly increase. There are a few dips in the increasing trend line between 1915 and 1950, but the trend continues to increase. It’s also important to note that there are a few missing variables from the early 2000s. But by 2018 the CO2 emissions have increased to 3.
+From this graph we can observe the log transformed data of average carbon dioxide emissions and average child mortality rates from 1800 to 2018 across 192 countries. We logged the data so that we could visually compare the two variables on the same scale. From 1800 to about 1900 is consistently around an average of 6. Just after 1900 the line started to steadily decrease until it almost reached 3 by 2018. The trend for carbon dioxide is slightly different. While there seems to be no change between 1800 and 1825–the emissions are consistently at -3, shortly after that period, the CO2 emissions begin to rapidly increase. There are a few dips in the increasing trend line between 1915 and 1950, but the trend continues to increase. It’s also important to note that there are a few missing variables from the early 2000s. But by 2018 the CO2 emissions have increased to 3. Overtime, as average co2 emissions increase overtime, child mortality rates have decreased.
 
-Average CO2 vs. Average CDMT:
+### Graph: Relationship between CO2 and CDMT
+
+The second visualization is the overall relationship between co2 emissions and child mortality rates by country.
 
 ```{r}
 #| code-fold: true
 graph<-
 co2_cdmt %>%
-  mutate(year = as.numeric(year),
-         co2 = as.numeric(co2), 
-         cdmt = as.numeric(cdmt)) %>%  
-  group_by(year) %>%  
-  summarize(avg_co2 = mean(co2),
-            avg_cdmt = mean(cdmt)) 
+  group_by(country) %>%  
+  summarize(log_avg_co2 = mean(log_co2, na.rm = TRUE),
+            log_avg_cdmt = mean(log_cdmt, na.rm = TRUE)) 
 graph |>
-  ggplot(aes(x = avg_co2, y = avg_cdmt)) +  
+  ggplot(aes(x = log_avg_co2, y = log_avg_cdmt)) +  
   geom_jitter(alpha = 0.7, color = "steelblue", size = 3) +    
   labs(title = "Average CO2 vs. CDMT", 
        subtitle = "Average CDMT", 
@@ -155,16 +133,33 @@ graph |>
 
 ```
 
-By observing this graph we can infer an important detail about the relationship between average CO2 emissions and average child mortality rate. The average is taken across all 192 countries in our data set for a particular year. The data is not displayed by year in this graph. As for the relationship between the two variables, as CO2 increases child mortality rates decrease.
+By observing this graph we can infer an important detail about the relationship between average CO2 emissions and average child mortality rate. Each data point represents a country. It seems as there is a negative relationship between the two variables. As co2 increase child mortality rates decrease.
 
-##### Fitting Linear Regression:
+## Model Fitting 
+
+### Linear Regression
+
+The statistical method we are using to analyze the data is linear regression. This model is used to examine the relationship between an independent and dependent variable.  In this case, CO2 emissions is the independent variable and child mortality rate is the dependent variable. The linear model assumes these two variables have a linear relationship; the changes in the independent variables are associated with a constant change in the dependent variable. This is the form for our model:
+
+y = intercecpt + slope + error term 
+
+Where y represents the dependent variable, child mortality and slope represents in the independent variable, CO2 emissions.
+
+### Graph 3
+
+The following graph depicts the visualization of our simple linear regression.
 
 ```{r}
 #| code-fold: true
-reg <- lm(avg_cdmt~avg_co2, data = graph)
+
+graph <- graph %>%
+  filter(log_avg_cdmt != -Inf) %>%
+  filter(log_avg_co2 != -Inf) 
+
+reg <- lm(log_avg_cdmt~log_avg_co2, data = graph)
 
 graph |>
-  ggplot(aes(x=avg_co2, y=avg_cdmt))+
+  ggplot(aes(x=log_avg_co2, y=log_avg_cdmt))+
   geom_jitter()+
   geom_smooth(method = "lm")+ 
   labs(title = "Linear Regression for CO2 and Child Mortality", 
@@ -173,40 +168,197 @@ graph |>
 
 ```
 
-The statistical method we are using to analyze the data is linear regression. This model is used to examine the relationship between an independent and dependent variable. In this case, CO2 emissions is the independent variable and child mortality rate is the dependent variable. The linear model assumes these two variables have a linear relationship; the changes in the independent variables are associated with a constant change in the dependent variable. This is the form for our model: y = 0 + x1 +\
-Where y represents the dependent variable, child mortality and x1 represents in the independent variable, CO2 emissions.
+There appears to be a negative relationship between the logged average values of co2 and child mortality. There appears to be outliers on the low end and a slight fanning of the points as co2 increases. There does seem to be a moderate linear correlation between the co2 and cdmt.
 
 ```{r}
 #| code-fold: true
 broom:: tidy(reg)
-summary(reg)
 ```
 
 Estimated Regression Model in Context:
 
-Average Child Mortality Rate = 5.2047 - 0.0127\*CO2
+Average Child Mortality Rate = 4.65 - 0.26\*CO2
 
-Coefficient interpretations:
+The intercept is the value of the dependent variable when the independent variable is 0. When CO2 emissions are at 0, the average predicted value for child mortality is 4.65. The slope represents the change in the dependent variable for a one unit increase in the dependent variable. For every one tonne per capita increase in average CO2 emissions the average cdmt decreases by 0.26.
 
-Intercept: The intercept is the value of the dependent variable when the independent variable is 0. When CO2 emissions are at 0, the average predicted value for child mortality is 5.2047.
+## LINE Conditions
 
-Slope: The slope represents the change in the dependent variable for a one unit increase in the dependent variable. For every one unit increase in average CO2 emissions the average cdmt decreases by 0.0127.
+### Linearity and Equal Variance
 
-Description of Fit: We have an adjusted R2 of 0.9379 so we observe a strong negative linear corelation between Child Mortality Rate.
-
-#### Residual Plots
+To assess linearity and equal variance we will asses the residual plot.
 
 ```{r}
 #| code-fold: true
-residual <- broom::augment(reg)
 
-residual_co2 <- ggplot(data = reg, aes(x = avg_co2, y = .resid)) +
-  geom_point() +
-  labs(x = "Average CO2", y = NULL, subtitle = "Residuals", title = "Residual Plot of Average CO2")
+# Get residuals and predicted values
+residual <- augment(reg)
+predicted <- predict(reg)
 
-residual_cdmt <- ggplot(data = reg, aes(x = avg_cdmt, y = .resid)) +
+# Create a residual plot
+residual_plot <- ggplot(residual, aes(x = .fitted, y = .resid)) +
   geom_point() +
-  labs (x = "Average Child Mortality", y = NULL, subtitle = "Residuals", title = "Residual Plot of Average Child Mortality")
-residual_co2
-residual_cdmt
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
+  labs(title = "Residual Plot",
+       x = "Fitted Values",
+       y = "Residuals") +
+  theme_minimal()
+print(residual_plot)
+
+
+
+```
+
+There is no distinct pattern between the residuals and the predicted values. Since there is no clear fanning we can assume the equal variance is met. Similarly since the points are evenly distributed about the line, we can also assume linearity is met.
+
+### Visualizing Simulations from the Model
+
+```{r}
+#| code-fold: true
+
+# Get residuals and predicted values
+residual <- augment(reg)
+predicted <- predict(reg)
+
+# Calculate sigma of residuals from the regression model
+co2_cdmt_sigma <- sigma(reg)
+
+# Define noise function to add random noise
+noise <- function(x, mean = 0, sd) {
+  x + rnorm(length(x), mean, sd)
+}
+
+# Simulate response variable using predicted values and sigma of residuals
+sim_response <- tibble(sim_cdmt = noise(predicted, sd = co2_cdmt_sigma))
+
+sim_data <- graph |> 
+  select(log_avg_co2, log_avg_cdmt) |> 
+  bind_cols(sim_response)
+
+
+# Plot histograms of observed and simulated response variables
+obs_p <- ggplot(data = graph, aes(x = log_avg_co2, y = log_avg_cdmt)) +  
+  geom_jitter(alpha = 0.7, color = "steelblue", size = 3) +    
+  labs(title = "Observed", 
+       subtitle = "Average CDMT", 
+       x = "Average CO2",
+       y = "")  
+
+new_p <- ggplot(sim_data, aes(x = sim_cdmt, y = log_avg_cdmt )) +
+  geom_jitter(alpha = 0.7, color = "steelblue", size = 3) +
+  labs(title = "Simulated", y = "", subtitle = " Average CDMT", x = " Average CO2") 
+
+# Combine plots using patchwork
+library(patchwork)
+obs_p + new_p
+
+```
+
+The observed data is more skewed than the similar data. Normality does not appear to be met.
+
+### Scatterplots of Relationships
+
+```{r}
+#| code-fold: true
+sim_data <- graph |> 
+  select(log_avg_co2, log_avg_cdmt) |> 
+  bind_cols(sim_response)
+
+head(sim_data)
+
+obs_reg_p <- graph |>
+  ggplot(aes(y = log_avg_cdmt,
+             x = log_avg_co2)) +
+  geom_point() +
+  labs(title = "Observed CDMT",
+       x = "log_avg_co2",
+       y = "",
+       subtitle = "log_avg_co2") +
+  theme_bw()
+
+sim_reg_p <-sim_data |>
+  ggplot(aes(y = sim_cdmt,
+             x = log_avg_co2)
+         ) +
+  geom_point() +
+   labs(title = "Simulated CDMT ",
+        x = "log_avg_co2",
+       y = "",
+       subtitle = "log_avg_co2") +
+  theme_bw()
+
+obs_reg_p + sim_reg_p
+```
+
+### Assessing Predictions
+
+```{r}
+#| code-fold: true
+sim_data |> 
+  ggplot(aes(x = sim_cdmt, 
+             y = log_avg_co2)
+         ) + 
+  geom_point() + 
+   labs(x = "Simulated CDMT", 
+        y = "",
+        subtitle = "Observed CDMT" ) + 
+  geom_abline(slope = 1,
+              intercept = 0, 
+              color = "red",
+              linetype = "dashed",
+              lwd = 1.5) +
+  theme_bw()
+
+lm(log_avg_co2 ~ sim_cdmt, 
+   data = sim_data
+   ) |> 
+  glance() 
+```
+
+Adjusted R squared value is 0.555 so there is a very weak linear correlation if that. need more explanation here! HERE: - Write in paragraph form for interpretation of model and description of fit. 
+
+### Inspect R Squared Values
+
+```{r}
+#| code-fold: true
+nsims <- 1000
+sims <- map_dfc(.x = 1:nsims,
+                .f = ~ tibble(sim = noise(predicted, 
+                                          sd = co2_cdmt_sigma)
+                              )
+                )
+
+head(sims)
+
+colnames(sims) <- colnames(sims) |> 
+  str_replace(pattern = "\\.\\.\\.",
+                  replace = "_")
+
+sims <- graph |> 
+  filter(!is.na(log_avg_co2), 
+         !is.na(log_avg_cdmt)) |> 
+  select(log_avg_cdmt) |> 
+  bind_cols(sims)
+
+head(sims)
+
+
+sims |> 
+  map(~ lm(log_avg_cdmt ~ .x, data = sims)) |> 
+  map(glance) |>
+  map_dbl(~ .x$r.squared)
+
+sim_r_sq <- sims |> 
+  map(~ lm(log_avg_cdmt ~ .x, data = sims)) |> 
+  map(glance) |> 
+  map_dbl(~ .x$r.squared)
+
+sim_r_sq <- sim_r_sq[names(sim_r_sq) != "log_avg_cdmt"]
+
+tibble(sims = sim_r_sq) |> 
+  ggplot(aes(x = sims)) + 
+  geom_histogram(binwidth = 0.025) +
+  labs(x = expression("Simulated"~ R^2),
+       y = "",
+       subtitle = "Number of Simulated Models") +
+  theme_bw()
 ```
