@@ -103,7 +103,7 @@ co2_cdmt %>%
   
   ggplot(aes(x = year)) +
   geom_line(aes(y = log(avg_co2), color = "log co2"), size = 1.5) +
-  geom_line(aes(y = log(avg_cdmt), color = "log cdmt"), size = 1.5) +labs(title = "Relationship CO2 Emmissions and Child Mortality Rates",
+  geom_line(aes(y = log(avg_cdmt), color = "log cdmt"), size = 1.5) +labs(title = "Relationship CO2 Emmissions and Child Mortality Rates (log)",
        x = "Year",
        y = "", subtitle = "Emissions in tonnes per capita/proportion of deaths per 1000 births") +
   
