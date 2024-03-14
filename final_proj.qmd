@@ -29,7 +29,7 @@ cdmt <- read_csv("cdmt.csv", col_names = TRUE)
 
 The data we are using in our analysis is sourced from [Gapminder](https://www.gapminder.org/data/documentation/). The Gapminder data sets are compiled of world data ranging from 1800 to 2020. The variables, documented by country (using current geographic boundaries), are indicators of global development and evolution through the past two centuries. Examples of these variables include, child mortality, GDP, fertility rates, life expectancy rates, and more.
 
-The data sets that we will be using in our analysis include two quantitative variables: Carbon Dioxide (CO2) and Child Mortality.
+The data sets that we will be using in our analysis include two quantitative variables: Carbon Dioxide (CO2) and Child Mortality (CDMT).
 
 The Child Mortality Rate data set combines data from multiple sources to create a data set of child deaths under the age of 5 for each country from 1800 to 2100. Child mortality is measured as the number of 0-5 years dying per 1000 children born. The data set has three variables: country, year, and child mortality rate.
 
@@ -55,7 +55,7 @@ The two data sets will also need to be merged into one data set in long format u
 
 Another important factor to address in our data cleaning process is the different scales the two variables are measured by. "Deaths per 1000 children" is hard to compare in context to "tonnes per capita". To contextualize the two scales in comparison to each other we will use a log base transformation.
 
-The following code performs these three tasks:
+
 
 ```{r}
 #| code-fold: true
@@ -170,7 +170,7 @@ graph |>
 
 ```
 
-There appears to be a negative relationship between the logged average values of co2 and child mortality. There appears to be outliers on the low end and a slight fanning of the points as co2 increases. There does seem to be a moderate linear correlation between the co2 and cdmt.
+There appears to be a moderate linear negative relationship between the logged average values of co2 and child mortality. There appears to be outliers on the low end and a slight fanning of the points as co2 increases. There does seem to be a moderate linear correlation between the co2 and cdmt. 
 
 ```{r}
 #| code-fold: true
@@ -194,6 +194,7 @@ To assess linearity and equal variance we will asses the residual plot.
 
 # Get residuals and predicted values
 residual <- augment(reg)
+residual_for_norm <- reg$residuals
 predicted <- predict(reg)
 
 # Create a residual plot
@@ -210,9 +211,48 @@ print(residual_plot)
 
 ```
 
-There is no distinct pattern between the residuals and the predicted values. Since there is no clear fanning we can assume the equal variance is met. Similarly since the points are evenly distributed about the line, we can also assume linearity is met.
+In this case we observer no residuals above 2 or below -2y o, which reveals no outliers. This plot conveys a slight funnel shape from left to right, that shows more spread on the left and more cluster on the right. Due to this, we cannot state that linearity or equal variance is met. Based on this, we will proceed with caution when fitting a linear model.
+
+### Normality 
+```{r}
+#| code-fold: true
+##qqnorm(residual_for_norm, main = "QQPlot of Residuals")
+##qqline(residual_for_norm)
+
+ggplot(data = residual, aes(x = .resid)) +
+  geom_histogram(fill = "skyblue", color = "black", bins = 30) +
+  labs(title = "Histogram of Residuals",
+       x = "Residuals",
+       y = "Frequency") +
+  theme_minimal()
+```
+
+Based on the tails of a qqnormal plot we observed, we saw large deviations from the predicted line, meaning that there is a lack of normality. We will proceed with the given data, however have caution when drawing conclusions. We also asses the histogram of the residuals. The distribution of these residuals appears to be bimodal with gaps on either end. Therefore, we conclude the distribution of our residuals are not normal.
+
+### Independence
+
+We do not belive we can assume independence in our data, because Co2 Emission for countries, will likely effect the Co2 emissions of other countries. We think factors like trade and relationships may add confounding variables to our data set.
 
 ## Model Fit
+
+```{r}
+#| code-fold: true
+response <- graph$log_avg_cdmt
+fitted_values <- fitted(reg)
+residual_2 <- residuals(reg)
+
+var_response <- var(response)
+var_fitted <- var(fitted_values)
+var_residuals <- var(residual_2)
+Poportion_resid <-var_residuals /var_response
+variance_table <- data.frame(
+  Variable = c("Response", "Fitted Values", "Residuals", "Proportion"),
+  Variance = c(var_response, var_fitted, var_residuals, Poportion_resid)
+)
+print(variance_table)
+```
+
+After assessing Linearity,Variance, Normality, and Independence, we do not belive a linear regression model would be appropriate for our data. Additionally, the proportion between the proportion of the variability in the response values that was accounted for by our model, is approximately 0.434. Based on this value we would not assume our data has linear correlation in the slightest. 
 
 # Part 3: Simulation
 
@@ -261,66 +301,8 @@ obs_p + new_p
 
 ```
 
-The observed data is more skewed than the similar data. Normality does not appear to be met.
+There is little similarity between the observed and the simulated data leading us to belive, it is not plausible the observed data could be generated by our model. The observed data seems to have a negative correlation, while our simulated data has a positive correlation. This reaffirmed our assumption a linear model is not appropriate to apply to our data.
 
-### Scatterplots of Relationships
-
-```{r}
-#| code-fold: true
-sim_data <- graph |> 
-  select(log_avg_co2, log_avg_cdmt) |> 
-  bind_cols(sim_response)
-
-head(sim_data)
-
-obs_reg_p <- graph |>
-  ggplot(aes(y = log_avg_cdmt,
-             x = log_avg_co2)) +
-  geom_point() +
-  labs(title = "Observed CDMT",
-       x = "log_avg_co2",
-       y = "",
-       subtitle = "log_avg_co2") +
-  theme_bw()
-
-sim_reg_p <-sim_data |>
-  ggplot(aes(y = sim_cdmt,
-             x = log_avg_co2)
-         ) +
-  geom_point() +
-   labs(title = "Simulated CDMT ",
-        x = "log_avg_co2",
-       y = "",
-       subtitle = "log_avg_co2") +
-  theme_bw()
-
-obs_reg_p + sim_reg_p
-```
-
-### 
-
-```{r}
-#| code-fold: true
-sim_data |> 
-  ggplot(aes(x = sim_cdmt, 
-             y = log_avg_co2)
-         ) + 
-  geom_point() + 
-   labs(x = "Simulated CDMT", 
-        y = "",
-        subtitle = "Observed CDMT" ) + 
-  geom_abline(slope = 1,
-              intercept = 0, 
-              color = "red",
-              linetype = "dashed",
-              lwd = 1.5) +
-  theme_bw()
-
-lm(log_avg_co2 ~ sim_cdmt, 
-   data = sim_data
-   ) |> 
-  glance() 
-```
 
 Adjusted R squared value is 0.555 so there is a very weak linear correlation if that. need more explanation here! HERE: - Write in paragraph form for interpretation of model and description of fit. 
 
@@ -335,8 +317,6 @@ sims <- map_dfc(.x = 1:nsims,
                               )
                 )
 
-head(sims)
-
 colnames(sims) <- colnames(sims) |> 
   str_replace(pattern = "\\.\\.\\.",
                   replace = "_")
@@ -347,13 +327,6 @@ sims <- graph |>
   select(log_avg_cdmt) |> 
   bind_cols(sims)
 
-head(sims)
-
-
-sims |> 
-  map(~ lm(log_avg_cdmt ~ .x, data = sims)) |> 
-  map(glance) |>
-  map_dbl(~ .x$r.squared)
 
 sim_r_sq <- sims |> 
   map(~ lm(log_avg_cdmt ~ .x, data = sims)) |> 
@@ -362,11 +335,18 @@ sim_r_sq <- sims |>
 
 sim_r_sq <- sim_r_sq[names(sim_r_sq) != "log_avg_cdmt"]
 
+```
+
+```{r}
+#| code-fold: true
 tibble(sims = sim_r_sq) |> 
   ggplot(aes(x = sims)) + 
-  geom_histogram(binwidth = 0.025) +
-  labs(x = expression("Simulated"~ R^2),
-       y = "",
+  geom_histogram(binwidth = 0.025, fill = "skyblue", color = "black", alpha = 0.7) +
+  labs(x = expression("Simulated" ~ R^2),
+       y = "Frequency",
+       title = "Histogram of Simulated R-squared Values",
        subtitle = "Number of Simulated Models") +
-  theme_bw()
+  theme_minimal()
 ```
+
+This simulated R^2 values seem to be centered around 0.3, with an approximately normal bell shaped curve. This indicates a bad fit, as the values are centered far from 1. Once again, reaffirming our conclusion a linear regression model is not appropriate for our data. In conclusion, C02 Emissions Per Capita is not a good indicator of Child Mortality Rates.
