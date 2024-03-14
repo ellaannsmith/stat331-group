@@ -23,7 +23,9 @@ co2 <- read_csv("co2.csv", col_names = TRUE)
 cdmt <- read_csv("cdmt.csv", col_names = TRUE)
 ```
 
-## Data Description:
+# Part 1: Introduction
+
+### Data Description:
 
 The data we are using in our analysis is sourced from [Gapminder](https://www.gapminder.org/data/documentation/). The Gapminder data sets are compiled of world data ranging from 1800 to 2020. The variables, documented by country (using current geographic boundaries), are indicators of global development and evolution through the past two centuries. Examples of these variables include, child mortality, GDP, fertility rates, life expectancy rates, and more.
 
@@ -83,6 +85,8 @@ co2_cdmt <- cdmt %>%
 
 ```
 
+# Part 2: Linear Regression
+
 ## Data Visualizations
 
 ### Graph: Relationship Observed Over Time
@@ -135,9 +139,7 @@ graph |>
 
 By observing this graph we can infer an important detail about the relationship between average CO2 emissions and average child mortality rate. Each data point represents a country. It seems as there is a negative relationship between the two variables. As co2 increase child mortality rates decrease.
 
-## Model Fitting 
-
-### Linear Regression
+## Linear Regression
 
 The statistical method we are using to analyze the data is linear regression. This model is used to examine the relationship between an independent and dependent variable.  In this case, CO2 emissions is the independent variable and child mortality rate is the dependent variable. The linear model assumes these two variables have a linear relationship; the changes in the independent variables are associated with a constant change in the dependent variable. This is the form for our model:
 
@@ -145,7 +147,7 @@ y = intercecpt + slope + error term 
 
 Where y represents the dependent variable, child mortality and slope represents in the independent variable, CO2 emissions.
 
-### Graph 3
+### Graph: Linear Model Visualization
 
 The following graph depicts the visualization of our simple linear regression.
 
@@ -163,8 +165,8 @@ graph |>
   geom_jitter()+
   geom_smooth(method = "lm")+ 
   labs(title = "Linear Regression for CO2 and Child Mortality", 
-       xlab = "Average CO2 Emmisions", 
-       ylab = "Average Child Mortality Rate")
+       x = "Average CO2 Emmisions", 
+       y = "Average Child Mortality Rate")
 
 ```
 
@@ -209,6 +211,12 @@ print(residual_plot)
 ```
 
 There is no distinct pattern between the residuals and the predicted values. Since there is no clear fanning we can assume the equal variance is met. Similarly since the points are evenly distributed about the line, we can also assume linearity is met.
+
+## Model Fit
+
+# Part 3: Simulation
+
+## Assessing Predictions
 
 ### Visualizing Simulations from the Model
 
@@ -289,7 +297,7 @@ sim_reg_p <-sim_data |>
 obs_reg_p + sim_reg_p
 ```
 
-### Assessing Predictions
+### 
 
 ```{r}
 #| code-fold: true
